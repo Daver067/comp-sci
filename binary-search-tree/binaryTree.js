@@ -21,7 +21,7 @@ class Tree {
     const node = new Node(arr[mid]);
     node.left = this.buildTree(arr, start, mid - 1);
     node.right = this.buildTree(arr, mid + 1, end);
-    return node;
+    return (this.root = node);
   }
   // inserts new nodes into the tree, will not insert it in a balanced format, unless you're lucky.
   insert(data, root = this.root) {
@@ -193,7 +193,7 @@ class Tree {
     callback(node);
   }
 
-  // takes a node and tells how many levels to its lowest leaf
+  // takes a node and tells how many levels to its lowest leaf returns a number
   height(node) {
     if (node === null) {
       return -1;
@@ -202,6 +202,7 @@ class Tree {
     }
   }
 
+  // takes a node and finds how far from the root node it is, returns the distance in a number
   depth(nodeToFind, comparisonNode = this.root) {
     if (comparisonNode === nodeToFind) return 0;
     if (nodeToFind.left !== null) {
@@ -211,14 +212,25 @@ class Tree {
       return this.depth(nodeToFind, comparisonNode.right) + 1;
     }
   }
+  // takes no arguments, will tell if the whole tree is balanced or not.
   isBalanced(node = this.root) {
-    if (node.left === null || node.right === null) {
-      return this.height(node) > 1 ? -1 : 0;
+    if (node == null) {
+      return true;
     }
-    if (this.isBalanced(node.left) + this.isBalanced(node.right) < 0)
-      return "not balanced";
-    else return "balanced";
+    let leftHeight = this.height(node.left);
+    let rightHeight = this.height(node.right);
+    const heightDifference = (leftHeight - rightHeight) * -1;
+    if (
+      heightDifference <= 1 &&
+      this.isBalanced(node.left) &&
+      this.isBalanced(node.right)
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
+  // takes no arguments, will take an unbalanced tree and rebalance it.
   rebalance() {
     function getArr(node, arr = []) {
       inorderArray.push(node.data);
@@ -229,10 +241,6 @@ class Tree {
   }
 }
 
-// array for testing tree
-let testArray = [
-  1, 7, 4, 23, 8, 9, 4, 9, 7, 3, 7, 7, 7, 7, 7, 5, 67, 6345, 324,
-];
 // for console logging the binary tree in a way to visualize.
 const prettyPrint = (node, prefix = "", isLeft = true) => {
   if (node.right !== null) {
@@ -244,6 +252,7 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
+// merge sort function from earlier changed to remove doubles.
 function mergeSortNoDoubles(arr) {
   if (arr.length === 1) return arr;
 
@@ -280,37 +289,30 @@ function mergeSortNoDoubles(arr) {
   return mergeBack;
 }
 
-const tree = new Tree();
-testArray = mergeSortNoDoubles(testArray);
-tree.root = tree.buildTree(testArray);
-prettyPrint(tree.root);
+function randomArrayGenerator() {
+  let randomLength = Math.floor(Math.random() * 7 * (Math.random() * 11));
+  let randomArray = [];
+  for (let i = 0; i < randomLength; i++) {
+    let randomNum = Math.floor(Math.random() * 3 * (Math.random() * 11));
+    randomArray.push(randomNum);
+  }
+  return randomArray;
+}
 
-const tree2 = new Tree();
-tree2.insert(42);
-tree2.insert(41);
-tree2.insert(13);
-tree2.insert(44);
-tree2.insert(16);
-tree2.insert(43);
-tree2.insert(14);
-tree2.insert(12);
-tree2.insert(15);
-tree2.delete(13); // this is the issue
-//tree2.delete(14);
-//tree2.delete(16);
-console.log("inorder -->");
-tree2.inorder();
-console.log("pre -->");
-tree2.preorder();
-console.log("post -->");
-tree2.postorder();
-console.log("bredth -->");
-tree2.levelOrder();
-console.log(tree2.find(14));
-console.log(tree2.height(tree2.find(14)));
-console.log(tree2.depth(tree2.find(14)));
-console.log(tree2.isBalanced());
+let randoArray = mergeSortNoDoubles(randomArrayGenerator());
+console.log(randoArray);
+let tree = new Tree();
+
+tree.buildTree(randoArray);
+prettyPrint(tree.root);
 console.log(tree.isBalanced());
-prettyPrint(tree2.root);
-tree2.rebalance();
-prettyPrint(tree2.root);
+for (let i = 0; i < 111; i++) {
+  tree.insert(
+    Math.floor(Math.random() * 3 * (Math.random() * 11) * (Math.random() * 7))
+  );
+}
+prettyPrint(tree.root);
+console.log(tree.isBalanced());
+tree.rebalance();
+console.log(tree.isBalanced());
+prettyPrint(tree.root);
