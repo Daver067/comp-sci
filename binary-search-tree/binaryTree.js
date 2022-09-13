@@ -130,12 +130,12 @@ class Tree {
   }
 
   // takes a function as an argument, performs that function to each node in bredth level order. If no function declared, console.logs the data of each node
-  levelOrder(
-    func = (node) => {
-      this.log(node);
-    },
-    queue = [this.root]
-  ) {
+  levelOrder(callback, queue = [this.root]) {
+    if (callback === undefined) {
+      callback = (node) => {
+        console.log(node.data);
+      };
+    }
     if (queue[0] == null) return;
     if (queue[0].left !== null) {
       queue.push(queue[0].left);
@@ -143,55 +143,56 @@ class Tree {
     if (queue[0].right !== null) {
       queue.push(queue[0].right);
     }
-    func(queue[0]);
+    callback(queue[0]);
     queue.shift();
-    this.levelOrder(func, queue);
+    this.levelOrder(callback, queue);
   }
   // takes a function as an argument, performs that function to each node in said order. If no function declared, console.logs the data of each node
-  inorder(
-    func = (node) => {
-      this.log(node);
-    },
-    node = this.root
-  ) {
+  inorder(callback, node = this.root) {
+    if (callback === undefined) {
+      callback = (node) => {
+        console.log(node.data);
+      };
+    }
     if (node.left !== null) {
-      this.inorder(func, node.left);
+      this.inorder(callback, node.left);
     }
-    func(node);
+    callback(node);
     if (node.right !== null) {
-      this.inorder(func, node.right);
-    }
-  }
-  // takes a function as an argument, performs that function to each node in said order. If no function declared, console.logs the data of each node
-  preorder(
-    func = (node) => {
-      this.log(node);
-    },
-    node = this.root
-  ) {
-    func(node);
-    if (node.left !== null) {
-      this.preorder(func, node.left);
-    }
-    if (node.right !== null) {
-      this.preorder(func, node.right);
+      this.inorder(callback, node.right);
     }
   }
   // takes a function as an argument, performs that function to each node in said order. If no function declared, console.logs the data of each node
-  postorder(
-    func = (node) => {
-      this.log(node);
-    },
-    node = this.root
-  ) {
+  preorder(callback, node = this.root) {
+    if (callback === undefined) {
+      callback = (node) => {
+        console.log(node.data);
+      };
+    }
+    callback(node);
     if (node.left !== null) {
-      this.postorder(func, node.left);
+      this.preorder(callback, node.left);
     }
     if (node.right !== null) {
-      this.postorder(func, node.right);
+      this.preorder(callback, node.right);
     }
-    func(node);
   }
+  // takes a function as an argument, performs that function to each node in said order. If no function declared, console.logs the data of each node
+  postorder(callback, node = this.root) {
+    if (callback === undefined) {
+      callback = (node) => {
+        console.log(node.data);
+      };
+    }
+    if (node.left !== null) {
+      this.postorder(callback, node.left);
+    }
+    if (node.right !== null) {
+      this.postorder(callback, node.right);
+    }
+    callback(node);
+  }
+
   // takes a node and tells how many levels to its lowest leaf
   height(node) {
     if (node === null) {
@@ -201,12 +202,30 @@ class Tree {
     }
   }
 
-  depth(node) {}
-  isBalanced() {}
-  rebalance() {}
-  // helper function for inorder, preorder, postorder, and levelOrder
-  log(value) {
-    console.log(value.data);
+  depth(nodeToFind, comparisonNode = this.root) {
+    if (comparisonNode === nodeToFind) return 0;
+    if (nodeToFind.left !== null) {
+      return this.depth(nodeToFind, comparisonNode.left) + 1;
+    }
+    if (nodeToFind.right !== null) {
+      return this.depth(nodeToFind, comparisonNode.right) + 1;
+    }
+  }
+  isBalanced(node = this.root) {
+    if (node.left === null || node.right === null) {
+      return this.height(node) > 1 ? -1 : 0;
+    }
+    if (this.isBalanced(node.left) + this.isBalanced(node.right) < 0)
+      return "not balanced";
+    else return "balanced";
+  }
+  rebalance() {
+    function getArr(node, arr = []) {
+      inorderArray.push(node.data);
+    }
+    let inorderArray = [];
+    this.inorder(getArr);
+    this.root = this.buildTree(inorderArray);
   }
 }
 
@@ -285,8 +304,13 @@ console.log("pre -->");
 tree2.preorder();
 console.log("post -->");
 tree2.postorder();
-prettyPrint(tree2.root);
 console.log("bredth -->");
 tree2.levelOrder();
 console.log(tree2.find(14));
 console.log(tree2.height(tree2.find(14)));
+console.log(tree2.depth(tree2.find(14)));
+console.log(tree2.isBalanced());
+console.log(tree.isBalanced());
+prettyPrint(tree2.root);
+tree2.rebalance();
+prettyPrint(tree2.root);
